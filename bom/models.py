@@ -4,7 +4,8 @@ import logging
 
 from django.core.cache import cache
 from django.db import models
-from django.contrib.auth.models import User, Group
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 from .utils import increment_str, prep_for_sorting_nicely, listify_string, stringify_list, strip_trailing_zeros
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 class Organization(models.Model):
     name = models.CharField(max_length=255, default=None)
     subscription = models.CharField(max_length=1, choices=SUBSCRIPTION_TYPES)
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     number_item_len = models.PositiveIntegerField(default=3, validators=[MinValueValidator(3), MaxValueValidator(10)])
     google_drive_parent = models.CharField(max_length=128, blank=True, default=None, null=True)
 
@@ -32,7 +33,7 @@ class Organization(models.Model):
 
 
 class UserMeta(models.Model):
-    user = models.OneToOneField(User, db_index=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, db_index=True, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.PROTECT)
     role = models.CharField(max_length=1, choices=ROLE_TYPES)
 
@@ -60,7 +61,8 @@ class UserMeta(models.Model):
     def _user_meta(self, organization=None):
         return UserMeta.objects.get_or_create(user=self, defaults={'organization': organization})[0]
 
-    User.add_to_class('bom_profile', _user_meta)
+    UM = get_user_model()
+    UM.add_to_class('bom_profile', _user_meta)
 
 
 class PartClass(models.Model):
@@ -289,7 +291,7 @@ class PartRevision(models.Model):
 
     description = models.CharField(max_length=255, default="", null=True, blank=True)
 
-    # By convention for IndaBOM, for part revision properties below, if a property value has
+    # By convention for BOMF, for part revision properties below, if a property value has
     # an associated units of measure, and if the property value field name is 'vvv' then the
     # associated units of measure field name must be 'vvv_units'.
     value_units = models.CharField(max_length=5, default=None, null=True, blank=True, choices=VALUE_UNITS)

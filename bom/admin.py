@@ -124,8 +124,8 @@ class AssemblyAdmin(admin.ModelAdmin):
         SubpartsInline,
     ]
 
-
-admin.site.unregister(User)
+# We're using a custom user model so don't unregister.
+# admin.site.unregister(User)
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
