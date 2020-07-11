@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth import get_user_model
+
 from .models import *
 
 
@@ -125,8 +127,9 @@ class AssemblyAdmin(admin.ModelAdmin):
     ]
 
 # We're using a custom user model so don't unregister.
-# admin.site.unregister(User)
 
+User = get_user_model()
+admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Seller, SellerAdmin)

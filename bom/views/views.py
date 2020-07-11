@@ -23,7 +23,7 @@ from functools import reduce
 from json import loads, dumps
 from math import ceil
 
-from bom.models import Part, PartClass, Subpart, SellerPart, Organization, Manufacturer, ManufacturerPart, User, \
+from bom.models import Part, PartClass, Subpart, SellerPart, Organization, Manufacturer, ManufacturerPart, \
     UserMeta, PartRevision, Assembly, AssemblySubparts
 from bom.forms import PartInfoForm, PartForm, AddSubpartForm, SubpartForm, FileForm, AddSellerPartForm, ManufacturerForm, \
     ManufacturerPartForm, SellerPartForm, UserForm, UserMetaForm, UserAddForm, OrganizationForm, NumberItemLenForm, PartRevisionForm, \

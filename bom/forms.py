@@ -3,13 +3,14 @@ import codecs
 import logging
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 
 from .constants import VALUE_UNITS, PACKAGE_TYPES, POWER_UNITS, INTERFACE_TYPES, TEMPERATURE_UNITS, DISTANCE_UNITS, WAVELENGTH_UNITS, \
     WEIGHT_UNITS, FREQUENCY_UNITS, VOLTAGE_UNITS, CURRENT_UNITS, MEMORY_UNITS, SUBSCRIPTION_TYPES, ROLE_TYPES, CONFIGURATION_TYPES
-from .models import Part, PartClass, Manufacturer, ManufacturerPart, Subpart, Seller, SellerPart, User, UserMeta, \
+from .models import Part, PartClass, Manufacturer, ManufacturerPart, Subpart, Seller, SellerPart, UserMeta, \
     Organization, PartRevision, AssemblySubparts, Assembly
 from .validators import decimal, numeric
 from .utils import listify_string, stringify_list, check_references_for_duplicates, prep_for_sorting_nicely, get_from_dict
@@ -19,20 +20,18 @@ logger = logging.getLogger(__name__)
 
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, user):
-        l = "[" + user.username + "]"
+        l = "[" + user.email + "]"
         if user.first_name:
             l += " " + user.first_name
         if user.last_name:
             l += " " + user.last_name
-        if user.email:
-            l += ", " + user.email
         return l
 
 
 class UserForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'username']
+        model = get_user_model() # User
+        fields = ['first_name', 'last_name', 'email']
 
 
 class UserAddForm(forms.ModelForm):
@@ -40,7 +39,7 @@ class UserAddForm(forms.ModelForm):
         model = UserMeta
         fields = ['role']
 
-    username = forms.CharField(initial=None, required=False)
+    email = forms.EmailField(initial=None, required=True)
 
     def __init__(self, *args, **kwargs):
         self.organization = kwargs.pop('organization', None)
@@ -48,27 +47,28 @@ class UserAddForm(forms.ModelForm):
 
     def clean_username(self):
         cleaned_data = super(UserAddForm, self).clean()
-        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
         try:
-            user = User.objects.get(username=username)
+            UM = get_user_model()
+            user = UM.objects.get(email=email)
             user_meta = UserMeta.objects.get(user=user)
             if user_meta.organization == self.organization:
                 validation_error = forms.ValidationError(
-                    "User '{0}' already belongs to {1}.".format(username, self.organization),
+                    "User '{0}' already belongs to {1}.".format(email, self.organization),
                     code='invalid')
-                self.add_error('username', validation_error)
+                self.add_error('email', validation_error)
             elif user_meta.organization:
                 validation_error = forms.ValidationError(
-                    "User '{}' belongs to another organization.".format(username),
+                    "User '{}' belongs to another organization.".format(email),
                     code='invalid')
-                self.add_error('username', validation_error)
-        except User.DoesNotExist:
+                self.add_error('email', validation_error)
+        except UM.DoesNotExist:
             validation_error = forms.ValidationError(
-                "User '{}' does not exist.".format(username),
+                "User '{}' does not exist.".format(email),
                 code='invalid')
-            self.add_error('username', validation_error)
+            self.add_error('email', validation_error)
 
-        return username
+        return email
 
     def save(self):
         username = self.cleaned_data.get('username')

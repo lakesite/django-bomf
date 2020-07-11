@@ -32,7 +32,7 @@
                         <p>To request a change in role please contact <a href="mailto:{{ organization.owner.email }}">{{ organization.owner.email }}</a> for assistance.</p>
                     </div>
                     <div class="row">
-                        {{ user_form.username|materializecss:'s12 m6' }}
+                        {{ user_form.email|materializecss:'s12 m6' }}
                     </div>
                 </div>
                 <div class="row">
@@ -202,7 +202,7 @@
                                         <label><input type="checkbox" class="filled-in" name="remove_user_meta_id_{{ org_user.bom_profile.id }}"><span/></label>
                                     </td>
                                     <td class="text-normal">{{ org_user.bom_profile.get_role_display }}</td>
-                                    <td class="text-normal">{{ org_user.username }}</td>
+                                    <td class="text-normal">{{ org_user.email }}</td>
                                     <td class="text-normal">{{ org_user.first_name }} {{ org_user.last_name }}</td>
                                     <td class="text-normal"><a href="mailto:{{ user.email }}">{{ org_user.email }}</a></td>
                                     <td>
@@ -230,7 +230,7 @@
                     <div>
                         <h3>Add User</h3>
                         <div class="row">
-                            {{ user_add_form.username|materializecss:'s12 m8' }}
+                            {{ user_add_form.email|materializecss:'s12 m8' }}
                             {{ user_add_form.role|materializecss:'s12 m4' }}
                             {{ user_add_form.file.errors }}
                         </div>
