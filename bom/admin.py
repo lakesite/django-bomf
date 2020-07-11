@@ -12,6 +12,7 @@ class UserMetaInline(admin.TabularInline):
 
 
 class UserAdmin(UserAdmin):
+	ordering = ('email',)
     inlines = (UserMetaInline,)
 
 

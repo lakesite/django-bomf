@@ -101,7 +101,7 @@ class OrganizationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.organization = kwargs.pop('organization', None)
         super(OrganizationForm, self).__init__(*args, **kwargs)
-        user_queryset = User.objects.filter(
+        user_queryset = get_user_model().objects.filter(
             id__in=UserMeta.objects.filter(organization=self.organization, role='A').values_list('user', flat=True)).order_by(
             'first_name', 'last_name', 'email')
         self.fields['owner'] = UserModelChoiceField(queryset=user_queryset, label='Owner', initial=self.organization.owner, required=True)

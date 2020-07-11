@@ -3,6 +3,7 @@ import logging
 import operator
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -220,7 +221,7 @@ def bom_settings(request, tab_anchor=None):
 
     part_classes = PartClass.objects.all().filter(organization=organization)
 
-    users_in_organization = User.objects.filter(
+    users_in_organization = get_user_model().objects.filter(
         id__in=UserMeta.objects.filter(organization=organization).values_list('user', flat=True)).exclude(id__in=[organization.owner.id]).order_by(
         'first_name', 'last_name', 'email')
     google_authentication = UserSocialAuth.objects.filter(user=user).first()
