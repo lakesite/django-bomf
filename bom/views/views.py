@@ -78,7 +78,7 @@ def home(request):
                      "left join bom_part as p on pr.part_id = p.id " \
                      "left join bom_partclass as pc on pc.id = p.number_class_id " \
                      "where p.id in ({}) " \
-                     "group by pr.part_id " \
+                     "group by pr.part_id, pc.code, p.number_item, p.number_variation " \
                      "order by pc.code, p.number_item, p.number_variation"
 
     part_list = ','.join(map(str, part_ids)) if len(part_ids) > 0 else "NULL"
